@@ -1,13 +1,21 @@
 package com.example.whatistokenbucket.ratelimit;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 @Configuration
+@RequiredArgsConstructor
 public class WebMvcConfig implements WebMvcConfigurer {
+
+    private final RateLimitInterceptor rateLimitInterceptor;
+
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
-        WebMvcConfigurer.super.addInterceptors(registry);
+        registry.addInterceptor(rateLimitInterceptor)
+                .addPathPatterns("/**") // 전체 경로 적용
+        //        .excludePathPatterns() // 제외 경로 추가
+        ;
     }
 }
