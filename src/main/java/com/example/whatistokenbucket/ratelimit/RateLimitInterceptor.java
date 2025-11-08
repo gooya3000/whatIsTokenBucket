@@ -53,6 +53,11 @@ public class RateLimitInterceptor implements HandlerInterceptor {
             return false; // 종료
         }
 
+        // 모니터링용 헤더
+        res.setHeader("X-RateLimit-Limit", String.valueOf(CAPACITY));
+        res.setHeader("X-RateLimit-Remaining", String.valueOf(Math.max(0, bucket.getRemainingTokens())));
+        res.setHeader("X-RateLimit-Window", "1s");
+
         return true;
     }
 

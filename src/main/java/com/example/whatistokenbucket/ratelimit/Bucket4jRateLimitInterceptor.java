@@ -2,10 +2,7 @@ package com.example.whatistokenbucket.ratelimit;
 
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
-import io.github.bucket4j.Bandwidth;
-import io.github.bucket4j.Bucket;
-import io.github.bucket4j.ConsumptionProbe;
-import io.github.bucket4j.Refill;
+import io.github.bucket4j.*;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.http.HttpStatus;
@@ -28,10 +25,11 @@ public class Bucket4jRateLimitInterceptor implements HandlerInterceptor {
     private static final long NANOS_PER_TOKEN =
             Math.max(1L, (long) Math.floor(1_000_000_000.0 / REFILL_PER_SEC)); // 토큰 1개의 초(나노초)
 
-    private final Bandwidth limit = Bandwidth.classic(
-            CAPACITY,
-            Refill.intervally(1, Duration.ofNanos(NANOS_PER_TOKEN)) // .intervally 일정 시간마다 채움, .greedy 한 번에 채움
-    );
+    private final Bandwidth limit =
+            Bandwidth.builder()
+                    .capacity(CAPACITY)
+                    .refillIntervally(1,  Duration.ofNanos(NANOS_PER_TOKEN)) // .refillIntervally() 일정 시간마다 채움, .refillGreedy() 한 번에 채움
+                    .build();
 
     private final Cache<String, Bucket> buckets = Caffeine.newBuilder()
             .expireAfterAccess(10, TimeUnit.MINUTES)  // 10분간 미접근 시 제거
